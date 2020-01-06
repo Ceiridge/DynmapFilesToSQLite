@@ -5,14 +5,20 @@ using System.IO;
 namespace DynmapFilesToSQLite {
     class Program {
         static void Main(string[] args) {
-            string tilesFolderPath = "";
+            string tilesFolderPath = "", outputFilePath = "";
             bool useJPGs = false;
 
             OptionSet options = new OptionSet() {
                 { "tilesFolder=", arg => tilesFolderPath = arg },
-                { "useJPG", arg => useJPGs = arg != null }
+                { "useJPG", arg => useJPGs = arg != null },
+                { "outputFile=", arg => outputFilePath = arg }
             };
             options.Parse(args);
+
+            if(tilesFolderPath.Length == 0 || outputFilePath.Length == 0) {
+                Console.WriteLine("Not all arguments provided");
+                return;
+            }
 
             DirectoryInfo tilesFolder = new DirectoryInfo(tilesFolderPath);
             if(!tilesFolder.Exists) {
@@ -20,13 +26,14 @@ namespace DynmapFilesToSQLite {
                 return;
             }
 
-            DirectoryInfo markersFolder = new DirectoryInfo(Path.Combine(tilesFolder.FullName, "_markers_")));
+            DirectoryInfo markersFolder = new DirectoryInfo(Path.Combine(tilesFolder.FullName, "_markers_"));
             if (!markersFolder.Exists) {
                 Console.WriteLine("Tiles folder invalid");
                 return;
             }
 
-            Converter.Converter.Convert(tilesFolder, markersFolder, useJPGs);
+            FileInfo outputFile = new FileInfo(outputFilePath);
+            Converter.Converter.Convert(tilesFolder, markersFolder, outputFile, useJPGs);
         }
     }
 }

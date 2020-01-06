@@ -16,6 +16,7 @@ namespace DynmapFilesToSQLite.Converter {
             readers.Add(new FacesReader(new DirectoryInfo(Path.Combine(tilesFolder.FullName, "faces"))));
             readers.Add(new SchemaVersionWriter(null));
             readers.Add(mapTypesReader);
+            readers.Add(new TilesReader(tilesFolder, mapTypesReader, useJPG));
 
             SQLiteWriter writer = new SQLiteWriter(outputFile);
             writer.CreateTables();

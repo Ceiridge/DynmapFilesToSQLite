@@ -10,7 +10,7 @@ namespace DynmapFilesToSQLite {
 
             OptionSet options = new OptionSet() {
                 { "tilesFolder=", arg => tilesFolderPath = arg },
-                { "useJPG", arg => useJPGs = arg != null },
+                { "isJPG", arg => useJPGs = arg != null },
                 { "outputFile=", arg => outputFilePath = arg }
             };
             options.Parse(args);
@@ -34,6 +34,8 @@ namespace DynmapFilesToSQLite {
 
             FileInfo outputFile = new FileInfo(outputFilePath);
             Converter.Converter.Convert(tilesFolder, markersFolder, outputFile, useJPGs);
+
+            Console.ReadKey();
         }
     }
 }

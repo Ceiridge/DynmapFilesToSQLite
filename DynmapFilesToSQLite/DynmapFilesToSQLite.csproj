@@ -85,6 +85,7 @@
     <Compile Include="Converter\Reader\impl\MarkerFilesReader.cs" />
     <Compile Include="Converter\Reader\impl\MarkerIconsReader.cs" />
     <Compile Include="Converter\Reader\impl\SchemaVersionWriter.cs" />
+    <Compile Include="Converter\Reader\impl\TilesReader.cs" />
     <Compile Include="Converter\SQLiteWriter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

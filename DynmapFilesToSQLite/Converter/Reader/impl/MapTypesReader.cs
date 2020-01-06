@@ -42,6 +42,22 @@ namespace DynmapFilesToSQLite.Converter.Reader.impl {
             }
         }
 
+        public int GetMapTypeId(MapType type) {
+            int i = 1;
+            foreach(MapType savedType in this.mapTypes) {
+                if (savedType.worldName.Equals(type.worldName) && savedType.mapId.Equals(type.mapId) && savedType.variant.Equals(type.variant))
+                    return i;
+                i++;
+            }
+
+            return -1;
+        }
+
+        public MapType GetMapType(int id) {
+            return this.mapTypes[id - 1];
+        }
+
+
         public struct MapType {
             public string worldName, mapId, variant;
         }

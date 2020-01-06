@@ -19,6 +19,8 @@ namespace DynmapFilesToSQLite.Converter {
                 SqliteTransaction transaction = writer.CreateTransaction();
                 reader.ExecuteSqliteCommands(transaction);
                 transaction.Commit();
+
+                Console.WriteLine("Committed " + reader.GetType().Name);
             }
 
             writer.Close();

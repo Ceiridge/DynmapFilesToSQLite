@@ -8,11 +8,14 @@ namespace DynmapFilesToSQLite.Converter.Reader.impl {
     public class TilesReader : DynReader {
         private MapTypesReader mapTypesReader;
         private Dictionary<TileChunk, byte[]> tileHashes = new Dictionary<TileChunk, byte[]>();
-        private bool isJpeg;
+        private bool isJpeg, hasSaveState;
+        private FileInfo saveStateFile;
 
-        public TilesReader(DirectoryInfo myDir, MapTypesReader mapTypesReader, bool isJpeg) : base(myDir) {
+        public TilesReader(DirectoryInfo myDir, MapTypesReader mapTypesReader, bool isJpeg, FileInfo saveStateFile, bool hasSaveState) : base(myDir) {
             this.mapTypesReader = mapTypesReader;
             this.isJpeg = isJpeg;
+            this.saveStateFile = saveStateFile;
+            this.hasSaveState = hasSaveState;
         }
 
         public override void ExecuteSqliteCommands(SqliteTransaction transaction) {
@@ -21,6 +24,12 @@ namespace DynmapFilesToSQLite.Converter.Reader.impl {
             worldNames.AddRange(myDir.EnumerateDirectories().Where(dir => {
                 return !dir.Name.Equals("_markers_") && !dir.Name.Equals("faces");
             }));
+
+            TilesReaderSaveState saveState = new TilesReaderSaveState(this.saveStateFile);
+            if (this.hasSaveState) {
+                saveState.ReadFile();
+                this.saveStateFile.Delete();
+            }
 
             foreach (DirectoryInfo world in worldNames) {
                 string worldName = world.Name;
@@ -61,6 +70,14 @@ namespace DynmapFilesToSQLite.Converter.Reader.impl {
                         int tcx = int.Parse(chunkIdName.Split('_')[0]);
                         int tcy = int.Parse(chunkIdName.Split('_')[1]);
 
+                        if (this.hasSaveState && (!mapType.Equals(saveState.mapType) || !chunkIdName.Equals(saveState.chunkId) || saveState.tcx != tcx || saveState.tcy != tcy)) {
+                            continue;
+                        }
+                        if (this.hasSaveState)
+                            continue;
+                        this.hasSaveState = false; // This might cause confusion; prevent the check above after the right chunk has been reached
+
+
                         foreach(FileInfo tile in chunkId.EnumerateFiles()) {
                             string tileName = tile.Name;
                             int zoom = 0;
@@ -98,6 +115,20 @@ namespace DynmapFilesToSQLite.Converter.Reader.impl {
 
                         }
                         Console.WriteLine("Added new chunk tile: " + " " + tcx + " " + tcy + " " + worldName + " " + mapIdName);
+                        Console.WriteLine("Hold P if you want to pause and save the progress to restart later");
+
+                        while(Console.KeyAvailable) {
+                            if(Console.ReadKey(true).Key == ConsoleKey.P) {
+                                saveState.mapType = mapType;
+                                saveState.chunkId = chunkIdName;
+                                saveState.tcx = tcx;
+                                saveState.tcy = tcy;
+
+                                saveState.WriteFile();
+                                Console.WriteLine("Progress saved, exiting now...");
+                                return;
+                            }
+                        }
                     }
                 }
             }

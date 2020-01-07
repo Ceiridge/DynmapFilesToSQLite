@@ -8,7 +8,11 @@ namespace DynmapFilesToSQLite.Converter.Reader.impl {
     public class MapTypesReader : DynReader {
         public List<MapType> mapTypes = new List<MapType>();
 
-        public MapTypesReader(DirectoryInfo myDir) : base(myDir) { }
+        private bool hasSaveState;
+
+        public MapTypesReader(DirectoryInfo myDir, bool hasSaveState) : base(myDir) {
+            this.hasSaveState = hasSaveState;
+        }
 
         public override void ExecuteSqliteCommands(SqliteTransaction transaction) {
             List<DirectoryInfo> worldNames = new List<DirectoryInfo>();
@@ -25,17 +29,19 @@ namespace DynmapFilesToSQLite.Converter.Reader.impl {
                         variant = "STANDARD"
                     });
 
-                    SqliteCommand cmd = new SqliteCommand();
-                    cmd.CommandText = "INSERT INTO Maps VALUES (@ID, @WorldID, @MapID, @Variant);";
+                    if (!hasSaveState) {
+                        SqliteCommand cmd = new SqliteCommand();
+                        cmd.CommandText = "INSERT INTO Maps VALUES (@ID, @WorldID, @MapID, @Variant);";
 
-                    cmd.Parameters.AddWithValue("@ID", mapTypes.Count);
-                    cmd.Parameters.AddWithValue("@WorldID", type.worldName);
-                    cmd.Parameters.AddWithValue("@MapID", type.mapId);
-                    cmd.Parameters.AddWithValue("@Variant", type.variant);
+                        cmd.Parameters.AddWithValue("@ID", mapTypes.Count);
+                        cmd.Parameters.AddWithValue("@WorldID", type.worldName);
+                        cmd.Parameters.AddWithValue("@MapID", type.mapId);
+                        cmd.Parameters.AddWithValue("@Variant", type.variant);
 
-                    cmd.Transaction = transaction;
-                    cmd.Connection = transaction.Connection;
-                    cmd.ExecuteNonQuery();
+                        cmd.Transaction = transaction;
+                        cmd.Connection = transaction.Connection;
+                        cmd.ExecuteNonQuery();
+                    }
 
                     Console.WriteLine("Added new map type: " + mapTypes.Count);
                 }

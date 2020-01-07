@@ -6,10 +6,10 @@ namespace DynmapFilesToSQLite.Converter {
     public class TilesReaderSaveState {
         public FileInfo saveStateFile;
 
-        string chunkId;
-        int tcx;
-        int tcy;
-        MapTypesReader.MapType mapType;
+        public string chunkId;
+        public int tcx;
+        public int tcy;
+        public MapTypesReader.MapType mapType;
 
         public TilesReaderSaveState(FileInfo saveStateFile) {
             this.saveStateFile = saveStateFile;

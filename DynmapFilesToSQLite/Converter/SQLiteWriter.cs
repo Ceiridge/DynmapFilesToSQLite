@@ -14,14 +14,15 @@ namespace DynmapFilesToSQLite.Converter {
         public FileInfo sqliteFile;
         public SqliteConnection sql;
 
-        public SQLiteWriter(FileInfo sqliteFile) {
+        public SQLiteWriter(FileInfo sqliteFile, bool deleteOldDB) {
             this.sqliteFile = sqliteFile;
 
-            if(sqliteFile.Exists) {
+            if (deleteOldDB && sqliteFile.Exists) {
                 Console.WriteLine("Deleting old database...");
                 sqliteFile.Delete();
             }
-            sqliteFile.Create().Close();
+            if (!sqliteFile.Exists)
+                sqliteFile.Create().Close();
 
             SqliteConnectionStringBuilder connectionBuilder = new SqliteConnectionStringBuilder();
             connectionBuilder.DataSource = sqliteFile.FullName;
